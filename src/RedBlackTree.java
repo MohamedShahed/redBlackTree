@@ -191,6 +191,15 @@ public class RedBlackTree {
         }
         return false;
     }
+    private int getDepth(Node node) {
+        if (node != null) {
+            int right_depth;
+            int left_depth = this.getDepth(node.getLeft());
+            return left_depth > (right_depth = this.getDepth(node.getRight())) ? left_depth + 1 : right_depth + 1;
+        }
+        return 0;
+    }
+
 
     public Node getRoot() {
         return this.root;
@@ -219,6 +228,9 @@ public class RedBlackTree {
     }
     public boolean contains(int data) {
         return this.contains(this.root, data);
+    }
+    public int getDepth() {
+        return this.getDepth(this.root);
     }
     public void delete(int data) {
         if (!this.contains(data)) {
@@ -254,5 +266,15 @@ public class RedBlackTree {
             node.removeFromParent();
         }
     }
+
+
+
+
+
+
+
+
+
+
 
 }
