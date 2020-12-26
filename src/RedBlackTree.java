@@ -2,9 +2,6 @@ public class RedBlackTree {
     protected Node root;
     protected int size = 0;
 
-    public Node getRoot() {
-        return this.root;
-    }
     private void insert(Node node, int item) {
         if (this.contains(item)) {
             return;
@@ -25,19 +22,32 @@ public class RedBlackTree {
             this.balanceAfterInsert(inserted);
         }
     }
-    public int getDepth() {
-        return this.getDepth(this.root);
-    }
-    private int getDepth(Node node) {
-        if (node != null) {
-            int right_depth;
-            int left_depth = this.getDepth(node.getLeft());
-            return left_depth > (right_depth = this.getDepth(node.getRight())) ? left_depth + 1 : right_depth + 1;
+    private void balanceAfterInsert(Node node) {
+        if (node == null || node == this.root || Node.isBlack(node.getParent())) {
+            return;
         }
-        return 0;
-    }
-    public Node find(int data) {
-        return this.find(this.root, data);
+        if (Node.isRed(node.getUncle())) {
+            Node.toggleColor(node.getParent());
+            Node.toggleColor(node.getUncle());
+            Node.toggleColor(node.getGrandparent());
+            this.balanceAfterInsert(node.getGrandparent());
+        } else if (this.hasLeftParent(node)) {
+            if (this.isRightChild(node)) {
+                node = node.getParent();
+                this.rotateLeft(node);
+            }
+            Node.setColor(node.getParent(), Node.BLACK);
+            Node.setColor(node.getGrandparent(), Node.RED);
+            this.rotateRight(node.getGrandparent());
+        } else if (this.hasRightParent(node)) {
+            if (this.isLeftChild(node)) {
+                node = node.getParent();
+                this.rotateRight(node);
+            }
+            Node.setColor(node.getParent(), Node.BLACK);
+            Node.setColor(node.getGrandparent(), Node.RED);
+            this.rotateLeft(node.getGrandparent());
+        }
     }
     private Node find(Node root, int data) {
         if (root == null) {
@@ -60,8 +70,18 @@ public class RedBlackTree {
         }
         return leftTree;
     }
-
-
+    private boolean contains(Node root, int data) {
+        if (root == null) {
+            return false;
+        }
+        if (root.getData() > data) {
+            return this.contains(root.getLeft(), data);
+        }
+        if (root.getData() < data) {
+            return this.contains(root.getRight(), data);
+        }
+        return true;
+    }
     private void balanceAfterDelete(Node node) {
         while (node != this.root && node.isBlack()) {
             Node sibling = node.getSibling();
@@ -114,105 +134,6 @@ public class RedBlackTree {
             node = this.root;
         }
         Node.setColor(node, Node.BLACK);
-    }
-    public void clear() {
-        this.root = null;
-    }
-    public int getSize() {
-        return this.size;
-    }
-
-
-    public void remove(int data) {
-        if (!this.contains(data)) {
-            return;
-        }
-
-        Node node = this.find(data);
-        if (node.getLeft() != null && node.getRight() != null) {
-            Node successor = this.getSuccessor(node);
-            node.setData(successor.getData());
-            node = successor;
-        }
-
-        Node pullUp = node.getLeft() == null ? node.getRight() : node.getLeft();
-        if (pullUp != null) {
-            if (node == this.root) {
-                node.removeFromParent();
-                this.root = node;
-            } else if (Node.getLeft(node.getParent()) == node) {
-                node.getParent().setLeft(pullUp);
-            } else {
-                node.getParent().setRight(pullUp);
-            }
-            if (Node.isBlack(node)) {
-                this.balanceAfterDelete(pullUp);
-            }
-        } else if (node == this.root) {
-            this.root = null;
-        } else {
-            if (Node.isBlack(node)) {
-                this.balanceAfterDelete(node);
-            }
-            node.removeFromParent();
-        }
-    }
-    public void insert(int item) {
-        if (this.isEmpty()) {
-            this.root = new Node (item);
-        } else {
-            this.insert(this.root, item);
-        }
-        this.root.setColor(Node.BLACK);
-        ++this.size;
-    }
-    public boolean isEmpty() {
-        if (this.root == null) {
-            return true;
-        }
-        return false;
-    }
-    public boolean contains(int data) {
-        return this.contains(this.root, data);
-    }
-    private boolean contains(Node root, int data) {
-        if (root == null) {
-            return false;
-        }
-        if (root.getData() > data) {
-            return this.contains(root.getLeft(), data);
-        }
-        if (root.getData() < data) {
-            return this.contains(root.getRight(), data);
-        }
-        return true;
-    }
-    private void balanceAfterInsert(Node node) {
-        if (node == null || node == this.root || Node.isBlack(node.getParent())) {
-            return;
-        }
-        if (Node.isRed(node.getUncle())) {
-            Node.toggleColor(node.getParent());
-            Node.toggleColor(node.getUncle());
-            Node.toggleColor(node.getGrandparent());
-            this.balanceAfterInsert(node.getGrandparent());
-        } else if (this.hasLeftParent(node)) {
-            if (this.isRightChild(node)) {
-                node = node.getParent();
-                this.rotateLeft(node);
-            }
-            Node.setColor(node.getParent(), Node.BLACK);
-            Node.setColor(node.getGrandparent(), Node.RED);
-            this.rotateRight(node.getGrandparent());
-        } else if (this.hasRightParent(node)) {
-            if (this.isLeftChild(node)) {
-                node = node.getParent();
-                this.rotateRight(node);
-            }
-            Node.setColor(node.getParent(), Node.BLACK);
-            Node.setColor(node.getGrandparent(), Node.RED);
-            this.rotateLeft(node.getGrandparent());
-        }
     }
     private boolean hasRightParent(Node node) {
         if (Node.getRight(node.getGrandparent()) == node.getParent()) {
@@ -269,6 +190,69 @@ public class RedBlackTree {
             return true;
         }
         return false;
+    }
+
+    public Node getRoot() {
+        return this.root;
+    }
+    public Node find(int data) { return this.find(this.root, data); }
+    public void clear() {
+        this.root = null;
+    }
+    public int getSize() {
+        return this.size;
+    }
+    public void insert(int item) {
+        if (this.isEmpty()) {
+            this.root = new Node (item);
+        } else {
+            this.insert(this.root, item);
+        }
+        this.root.setColor(Node.BLACK);
+        ++this.size;
+    }
+    public boolean isEmpty() {
+        if (this.root == null) {
+            return true;
+        }
+        return false;
+    }
+    public boolean contains(int data) {
+        return this.contains(this.root, data);
+    }
+    public void delete(int data) {
+        if (!this.contains(data)) {
+            return;
+        }
+
+        Node node = this.find(data);
+        if (node.getLeft() != null && node.getRight() != null) {
+            Node successor = this.getSuccessor(node);
+            node.setData(successor.getData());
+            node = successor;
+        }
+
+        Node pullUp = node.getLeft() == null ? node.getRight() : node.getLeft();
+        if (pullUp != null) {
+            if (node == this.root) {
+                node.removeFromParent();
+                this.root = node;
+            } else if (Node.getLeft(node.getParent()) == node) {
+                node.getParent().setLeft(pullUp);
+            } else {
+                node.getParent().setRight(pullUp);
+            }
+            if (Node.isBlack(node)) {
+                this.balanceAfterDelete(pullUp);
+            }
+        } else if (node == this.root) {
+            this.root = null;
+        } else {
+            if (Node.isBlack(node)) {
+                this.balanceAfterDelete(node);
+            }
+            node.removeFromParent();
+        }
     }
 
 }

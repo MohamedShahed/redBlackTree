@@ -87,7 +87,7 @@ public class TreeViewer extends JPanel {
 					JOptionPane.showMessageDialog(null,
 							"Element is not present in the tree");
 				} else {
-					tree.remove(toDelete);
+					tree.delete(toDelete);
 					treePanel.repaint();
 					mTextField.requestFocus();
 					mTextField.selectAll();
@@ -165,7 +165,7 @@ public class TreeViewer extends JPanel {
 	private void setupButton(JButton button, String imgSrc) {
 		try {
 			Image icon = ImageIO.read(getClass().getResource(
-					"/resources/" + imgSrc + ".png"));
+					"/images/" + imgSrc + ".png"));
 			button.setIcon(new ImageIcon(icon));
 			button.setBorderPainted(false);
 			button.setFocusPainted(false);
@@ -186,7 +186,7 @@ public class TreeViewer extends JPanel {
 
 		try {
 			j.setIconImage(ImageIO.read(TreeViewer.class
-					.getResource("/resources/ic_binary.png")));
+					.getResource("/images/ic_binary.png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
