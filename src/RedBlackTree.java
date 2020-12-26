@@ -268,13 +268,43 @@ public class RedBlackTree {
     }
 
 
+    private void printHelper(Node root, String indent, boolean last) {
+        // print the tree structure on the screen
+        if (root != null) {
+            System.out.print(indent);
+            if (last) {
+                System.out.print("R----");
+                indent += "     ";
+            } else {
+                System.out.print("L----");
+                indent += "|    ";
+            }
+
+            String sColor = (root.getColor() == false)?"RED":"BLACK";
+            System.out.println(root.getData() + "(" + sColor + ")");
+            printHelper(root.getLeft(), indent, false);
+            printHelper(root.getRight(), indent, true);
+        }
+    }
 
 
+    public void prettyPrint() {
+        printHelper(this.root, "", true);
+    }
 
-
-
-
-
+    public static void main(String arg[])
+    {
+        RedBlackTree bst = new RedBlackTree();
+        bst.insert(8);
+        bst.insert(18);
+        bst.insert(5);
+        bst.insert(15);
+        bst.insert(17);
+        bst.insert(25);
+        bst.insert(40);
+        bst.insert(80);
+        bst.prettyPrint();
+    }
 
 
 }
